@@ -14,7 +14,7 @@ def index(request):
     :param request: The http request received
     :return: A HttpResponse for the index of our web app
     """
-    return render(request, "SpotifyWrapped/homepage.html")
+    return render(request, "spotify_wrapped/homepage.html")
 
 def account_creation(request):
     """
