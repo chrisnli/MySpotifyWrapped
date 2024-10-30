@@ -20,5 +20,5 @@ jobs:
         pip install django coverage
     - name: Analysing the code with coverage
       run: |
-        coverage run manage.py test --source=./spotify_wrapped
+        coverage run --source=./spotify_wrapped manage.py test
         coverage report --fail-under=80
