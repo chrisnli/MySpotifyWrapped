@@ -35,8 +35,6 @@ class AccountCreationTests(TestCase):
         self.assertIs(response.status_code, 200)
         self.assertContains(response, "This password is too common.")
         # Ensure user has not been added to the database
-        try:
-            User.objects.get(username="test_account_creation_common_password")
-            self.fail("User was added to the database when they had a common password")
-        except User.DoesNotExist:
-            pass
+        self.assertFalse(
+            User.objects.filter(username="test_account_creation_common_password").exists(),
+            "User was added to the database when they had a common password")
