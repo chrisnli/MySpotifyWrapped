@@ -3,6 +3,7 @@ Contains tests for functionality of the various functions in our web app
 """
 from django.test import TestCase
 from django.contrib.auth.models import User
+from spotify_wrapped.models import Account
 
 class AccountCreationTests(TestCase):
     """
@@ -38,3 +39,17 @@ class AccountCreationTests(TestCase):
         self.assertFalse(
             User.objects.filter(username="test_account_creation_common_password").exists(),
             "User was added to the database when they had a common password")
+
+class AccountDatabaseTests(TestCase):
+    """
+    Tests which relate to the Account model and its database interactions
+    """
+    def test_account_database_creation(self):
+        """
+        Ensures that the Account model can be created properly with a User
+        """
+        test_user = User.objects.create_user(username="test_account_database_creation")
+        test_account = Account(user=test_user)
+        self.assertEqual(test_user, test_account.user)
+        self.assertEqual(test_user.account, test_account)
+
