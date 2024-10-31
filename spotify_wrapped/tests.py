@@ -57,6 +57,16 @@ class AccountCreationTests(TestCase):
             User.objects.filter(username="test_account_creation_same_username_password").exists(),
             "User was added to the database when they have the same name and password")
 
+    def test_account_creation_get_request(self):
+        """
+        Test if the login system displays the correct page on a GET request
+        """
+        response = self.client.get('/accounts/create')
+        # Ensure it returns the page without error
+        self.assertIs(response.status_code, 200)
+        # Ensure it loads the correct template
+        self.assertTemplateUsed(response, 'registration/register.html')
+
 class AccountDatabaseTests(TestCase):
     """
     Tests which relate to the Account model and its database interactions
