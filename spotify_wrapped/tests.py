@@ -40,6 +40,23 @@ class AccountCreationTests(TestCase):
             User.objects.filter(username="test_account_creation_common_password").exists(),
             "User was added to the database when they had a common password")
 
+    def test_account_creation_same_username_password(self):
+        """
+        Test if the login system rejects accounts with the same username and password
+        """
+        response = self.client.post('/accounts/create', {
+            "username": "test_account_creation_same_username_password",
+            "password1": "test_account_creation_same_username_password",
+            "password2": "test_account_creation_same_username_password",
+        })
+        # Ensure it returns the same page with the error text on unsuccessful login
+        self.assertIs(response.status_code, 200)
+        self.assertContains(response, "The password is too similar to the username.")
+        # Ensure user has not been added to the database
+        self.assertFalse(
+            User.objects.filter(username="test_account_creation_same_username_password").exists(),
+            "User was added to the database when they have the same name and password")
+
 class AccountDatabaseTests(TestCase):
     """
     Tests which relate to the Account model and its database interactions
