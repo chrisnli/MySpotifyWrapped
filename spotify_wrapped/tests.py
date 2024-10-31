@@ -52,4 +52,3 @@ class AccountDatabaseTests(TestCase):
         test_account = Account(user=test_user)
         self.assertEqual(test_user, test_account.user)
         self.assertEqual(test_user.account, test_account)
-
