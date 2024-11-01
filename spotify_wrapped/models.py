@@ -15,3 +15,19 @@ class Account(models.Model):
     additional fields.
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+
+    @classmethod
+    def new(_class, username, password):
+        """
+        Creates and saves a new user and account to the database
+        Does not do any checking on the username or password before passing
+        them to the User model - that should be done before calling this
+        function
+        :param username: The username for the new user
+        :param password: The password for the new user
+        """
+        user = User.objects.create_user(username=username, password=password)
+        user.save()
+        account = Account.objects.create(user=user)
+        account.save()
+        return account
