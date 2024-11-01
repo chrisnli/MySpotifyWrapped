@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, get_user_model
 from django.urls import reverse
+from .models import Account
 
 User = get_user_model()
 
@@ -32,9 +33,9 @@ def account_creation(request):
         return render(request, "registration/register.html", {"form":UserCreationForm})
     form = UserCreationForm(request.POST)
     if form.is_valid():
-        user = User.objects.create_user(username=form.cleaned_data['username'],
-                                        password=form.cleaned_data['password1'])
-        user.save()
-        login(request, user)
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password1']
+        account = Account.new(username=username, password=password)
+        login(request, account.user)
         return HttpResponseRedirect(reverse("index"))
     return render(request, "registration/register.html", {"form": form})

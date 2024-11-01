@@ -81,3 +81,15 @@ class AccountDatabaseTests(TestCase):
         test_account = Account(user=test_user)
         self.assertEqual(test_user, test_account.user)
         self.assertEqual(test_user.account, test_account)
+
+    def test_account_new_function(self):
+        """
+        Ensures that the Account new function properly creates a User and an Account
+        """
+        # No how the new function does not validate that the password is not
+        # too common - must be done before calling new
+        test_user = Account.new(username="test_account_new_function", password="password123")
+        # Ensure user now exists in database
+        user = User.objects.get(username="test_account_new_function")
+        # Ensure account now exists in database
+        Account.objects.get(user=user)
