@@ -88,7 +88,7 @@ class AccountDatabaseTests(TestCase):
         """
         # No how the new function does not validate that the password is not
         # too common - must be done before calling new
-        test_user = Account.new(username="test_account_new_function", password="password123")
+        Account.new(username="test_account_new_function", password="password123")
         # Ensure user now exists in database
         user = User.objects.get(username="test_account_new_function")
         # Ensure account now exists in database
