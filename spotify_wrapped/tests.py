@@ -2,8 +2,10 @@
 Contains tests for functionality of the various functions in our web app
 """
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from spotify_wrapped.models import Account
+
+User = get_user_model()
 
 class AccountCreationTests(TestCase):
     """

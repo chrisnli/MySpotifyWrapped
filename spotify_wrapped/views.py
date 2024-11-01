@@ -5,9 +5,10 @@ Logic required to display correct web pages to users of our web app.
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
-from django.contrib.auth.models import User
+from django.contrib.auth import login, get_user_model
 from django.urls import reverse
+
+User = get_user_model()
 
 def index(request):
     """
