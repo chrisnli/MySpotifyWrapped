@@ -17,7 +17,7 @@ class Account(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 
     @classmethod
-    def new(_class, username, password):
+    def new(cls, username, password):
         """
         Creates and saves a new user and account to the database
         Does not do any checking on the username or password before passing
