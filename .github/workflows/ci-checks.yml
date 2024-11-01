@@ -20,8 +20,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install pylint django pylint-django coverage
       - name: Ensure proper formatting
-        run: |
-          pylint --load-plugins pylint_django $(git ls-files 'spotify_wrapped/*.py')
+        run: >
+          pylint --load-plugins pylint_django
+          --django-settings-module=spotify_wrapped.settings
+          $(git ls-files 'spotify_wrapped/*.py')
       - name: Ensure functionality and code coverage
         run: |
           coverage run --source=./spotify_wrapped manage.py test
