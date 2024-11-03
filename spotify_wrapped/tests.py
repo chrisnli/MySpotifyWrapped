@@ -1,8 +1,12 @@
 """
 Contains tests for functionality of the various functions in our web app
 """
+
+from datetime import timedelta
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+
 from spotify_wrapped.models import Account
 
 User = get_user_model()
@@ -93,3 +97,24 @@ class AccountDatabaseTests(TestCase):
         user = User.objects.get(username="test_account_new_function")
         # Ensure account now exists in database
         Account.objects.get(user=user)
+
+    def test_access_expired_not_expired(self):
+        """
+        Ensures an Account can properly determine that an access token has not
+        expired
+        """
+        test_account = Account.new(username="test_access_expired_not_expired",
+                                   password="password123")
+        test_account.access_token_expiration_time = timezone.now() + timedelta(minutes=1)
+        self.assertFalse(test_account.access_expired())
+
+    def test_access_expired_expired(self):
+        """
+        Ensures an Account can properly determine that an access token has expired
+        """
+        test_account = Account.new(username="test_access_expired_not_expired",
+                                   password="password123")
+        test_account.access_token_expiration_time = timezone.now() - timedelta(minutes=1)
+        self.assertTrue(test_account.access_expired())
+
+    # Can't test web-based get methods until secrets module is merged
