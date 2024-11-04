@@ -74,3 +74,22 @@ class Account(models.Model):
         self.access_token = response_json['access_token']
         self.access_token_expiration_time = timezone.now() + timedelta(
             seconds=response_json['expires_in'])
+
+class Artist(models.Model):
+    id = models.TextField(primary_key=True)
+    genres = models.ManyToManyField(models.TextField)
+    image_link = models.TextField()
+    name = models.TextField()
+
+class Album(models.Model):
+    id = models.TextField(primary_key=True)
+    link = models.TextField()
+    cover_link = models.TextField()
+    name = models.TextField()
+    artists = models.ManyToManyField(Artist)
+
+class Track(models.Model):
+    id = models.TextField(primary_key=True)
+    album = models.ForeignKey(Album, on_delete=models.CASCADE)
+    artists = models.ManyToManyField(Artist)
+
