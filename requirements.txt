@@ -1,0 +1,6 @@
+pylint
+django
+pylint-django
+coverage
+requests
+djangorestframework
