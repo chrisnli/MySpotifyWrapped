@@ -1,13 +1,14 @@
 import subprocess
 from shutil import which, rmtree
 import sys
-from os import getcwd
+from os import getcwd, name
 from os.path import basename, isdir
 
 python = "python"
 extension = ""
 passed_lints = False
 passed_tests = True
+venv_path = ".venv/bin/"
 
 def ensure_right_cwd():
     print("Ensuring correct working directory")
@@ -24,9 +25,10 @@ def ensure_system_dependencies():
             python = "python3"
         else:
             sys.exit("Please ensure python3 is installed")
-    if sys.platform == "windows":
-        global extension
+    if name == "nt":
+        global extension, venv_path
         extension = ".exe"
+        venv_path = ".venv/Scripts/"
 
 def ensure_venv_dependencies():
     print("Ensuring venv is reproducible and has required dependencies")
@@ -34,7 +36,7 @@ def ensure_venv_dependencies():
     if isdir(".venv"):
         rmtree(".venv")
     subprocess.run([python, "-m", "venv", ".venv"], check=True)
-    python = ".venv/Scripts/python" + extension
+    python = venv_path + python + extension
     subprocess.run([python, "-m", "pip", "install", "--upgrade", "pip"], check=True)
     command = [python, "-m", "pip", "install"]
     with open("requirements.txt", "r") as reqs:
@@ -49,7 +51,7 @@ def run_lints():
     files = subprocess.run(["git", "ls-files", "spotify_wrapped/*.py"], check=True, capture_output=True).stdout
     files = files.decode()
     files = files.replace("\n", " ")
-    output = subprocess.run(".venv/Scripts/pylint" + extension + " --load-plugins pylint_django --django-settings-module=spotify_wrapped.settings " + files)
+    output = subprocess.run(venv_path + "pylint" + extension + " --load-plugins pylint_django --django-settings-module=spotify_wrapped.settings " + files)
     if output.returncode != 0:
         passed_lints = False
         print("Failed formatting checks")
@@ -60,8 +62,8 @@ def run_lints():
 def run_tests():
     print("Running tests")
     global passed_tests
-    subprocess.run([".venv/Scripts/coverage" + extension, "run", "manage.py", "test"])
-    output = subprocess.run([".venv/Scripts/coverage" + extension, "report", "--fail-under=80"])
+    subprocess.run([venv_path + "coverage" + extension, "run", "manage.py", "test"])
+    output = subprocess.run([venv_path + "coverage" + extension, "report", "--fail-under=80"])
     if output.returncode != 0:
         passed_tests = False
         print("Failed tests")
