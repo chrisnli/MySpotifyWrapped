@@ -9,6 +9,7 @@ extension = ""
 passed_lints = False
 passed_tests = True
 venv_path = ".venv/bin/"
+shell_pylint = True
 
 def ensure_right_cwd():
     print("Ensuring correct working directory")
@@ -26,9 +27,10 @@ def ensure_system_dependencies():
         else:
             sys.exit("Please ensure python3 is installed")
     if name == "nt":
-        global extension, venv_path
+        global extension, venv_path, shell_pylint
         extension = ".exe"
         venv_path = ".venv/Scripts/"
+        shell_pylint = False
 
 def ensure_venv_dependencies():
     print("Ensuring venv is reproducible and has required dependencies")
@@ -47,11 +49,11 @@ def ensure_venv_dependencies():
 
 def run_lints():
     print("Running formatting checks")
-    global passed_lints
+    global passed_lints, shell_pylint
     files = subprocess.run(["git", "ls-files", "spotify_wrapped/*.py"], check=True, capture_output=True).stdout
     files = files.decode()
     files = files.replace("\n", " ")
-    output = subprocess.run(venv_path + "pylint" + extension + " --load-plugins pylint_django --django-settings-module=spotify_wrapped.settings " + files)
+    output = subprocess.run(venv_path + "pylint" + extension + " --load-plugins pylint_django --django-settings-module=spotify_wrapped.settings " + files, shell=shell_pylint)
     if output.returncode != 0:
         passed_lints = False
         print("Failed formatting checks")
