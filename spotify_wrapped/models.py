@@ -92,4 +92,6 @@ class Track(models.Model):
     id = models.TextField(primary_key=True)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     artists = models.ManyToManyField(Artist)
+    name = models.TextField()
+    popularity = models.IntegerField()
 
