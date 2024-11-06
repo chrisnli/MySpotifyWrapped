@@ -75,13 +75,28 @@ class Account(models.Model):
         self.access_token_expiration_time = timezone.now() + timedelta(
             seconds=response_json['expires_in'])
 
+class Genre(models.Model):
+    """
+    Represents a music genre. Needed so Artist can have a Many to
+    Many field with the Genres they have
+    """
+    name = models.TextField(primary_key=True)
+
 class Artist(models.Model):
+    """
+    Represents an Artist on Spotify.
+    """
     id = models.TextField(primary_key=True)
-    genres = models.ManyToManyField(models.TextField)
+    genres = models.ManyToManyField(Genre)
     image_link = models.TextField()
     name = models.TextField()
 
 class Album(models.Model):
+    """
+    Represents an album of songs on Spotify. This model does not contain
+    references to the songs in the album, instead Tracks contain references to
+    their associated albums.
+    """
     id = models.TextField(primary_key=True)
     link = models.TextField()
     cover_link = models.TextField()
@@ -89,9 +104,12 @@ class Album(models.Model):
     artists = models.ManyToManyField(Artist)
 
 class Track(models.Model):
+    """
+    Represents a song available on spotify. Also contains the popularity of
+    the song on a scale of 0-100 as computed by Spotify.
+    """
     id = models.TextField(primary_key=True)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     artists = models.ManyToManyField(Artist)
     name = models.TextField()
     popularity = models.IntegerField()
-
