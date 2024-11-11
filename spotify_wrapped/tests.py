@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
-from spotify_wrapped.models import Account
+from spotify_wrapped.models import Account, SingleWrapped
 
 User = get_user_model()
 
@@ -118,3 +118,29 @@ class AccountDatabaseTests(TestCase):
         self.assertTrue(test_account.access_expired())
 
     # Can't test web-based get methods until secrets module is merged
+
+class SpotifyWrappedModelTests(TestCase):
+    """
+    Tests which related to the model representation of a SpotifyWrapped
+    """
+    def test_json_parse(self):
+        """
+        Ensures we can properly parse the data from a JSON object returned from
+        Spotify into a Wrapped
+        """
+        test_account = Account.new(username="test_json_parse", password="password123")
+        with open("test_inputs/example_artists.json", "r", encoding="utf-8") as artists_file:
+            example_artists = artists_file.read()
+        with open("test_inputs/example_tracks.json", "r", encoding="utf-8") as tracks_file:
+            example_tracks = tracks_file.read()
+        wrapped = SingleWrapped.parse(test_account, example_artists, example_tracks)
+        self.assertEqual(wrapped.slides, [
+            "Your number one artist was Artik & Asti!",
+            "That makes you one of 1076226 fans!",
+            "Your most played genre was russian pop!",
+            "You have a niche taste in artists!",
+            "Your number one song was Walk It Talk It!",
+            "You tend to like mid-length songs.",
+            "None of your top 5 songs were explicit 😇",
+            "Your playlist was a fresh change of pace for most people!"
+        ])

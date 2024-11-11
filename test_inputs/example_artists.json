@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/4ywf1iH1ruKEcfpCgfJvyA"
+      },
+      "followers": {
+        "href": null,
+        "total": 1076226
+      },
+      "genres": [
+        "russian pop"
+      ],
+      "href": "https://api.spotify.com/v1/artists/4ywf1iH1ruKEcfpCgfJvyA",
+      "id": "4ywf1iH1ruKEcfpCgfJvyA",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab6761610000e5ebee4cc01186e52a96de104302",
+          "width": 640
+        },
+        {
+          "height": 320,
+          "url": "https://i.scdn.co/image/ab67616100005174ee4cc01186e52a96de104302",
+          "width": 320
+        },
+        {
+          "height": 160,
+          "url": "https://i.scdn.co/image/ab6761610000f178ee4cc01186e52a96de104302",
+          "width": 160
+        }
+      ],
+      "name": "Artik & Asti",
+      "popularity": 57,
+      "type": "artist",
+      "uri": "spotify🧑‍🎨4ywf1iH1ruKEcfpCgfJvyA"
+    }
+  ],
+  "total": 1,
+  "limit": 5,
+  "offset": 0,
+  "href": "https://api.spotify.com/v1/me/top/artists?limit=5&time_range=long_term",
+  "next": null,
+  "previous": null
+}
