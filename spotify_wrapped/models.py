@@ -113,6 +113,19 @@ class SingleWrapped(models.Model):
         _add_tracks(wrapped.slides, top_tracks)
         return wrapped
 
+    @classmethod
+    def create(cls, user, artist_json, track_json):
+        """
+        Does the same thing as parse, but also saves to the database
+        :param user: The user who created this SingleWrapped
+        :param artist_json: The json string returned from the spotify query of the top
+         artists
+        :param track_json: The json string returned from the spotify query of the top
+        tracks
+        """
+        wrapped = SingleWrapped.parse(user, artist_json, track_json)
+        wrapped.save()
+        return wrapped.get_id()
 
     def get_slides(self):
         """
@@ -132,6 +145,12 @@ class SingleWrapped(models.Model):
         :return: The datetime at which this wrapped was created
         """
         return self.created_at
+
+    def get_id(self):
+        """
+        :return: The id of this wrapped
+        """
+        return self.id
 
 def _add_artists(slides, top_artists):
     slides.append("Your number one artist was " + str(top_artists[0]["name"]) + "!")

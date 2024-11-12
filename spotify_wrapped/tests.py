@@ -10,6 +10,11 @@ from django.utils import timezone
 from spotify_wrapped.models import Account, SingleWrapped
 
 User = get_user_model()
+with open("test_inputs/example_artists.json", "r", encoding="utf-8") as artists_file:
+    example_artists = artists_file.read()
+with open("test_inputs/example_tracks.json", "r", encoding="utf-8") as tracks_file:
+    example_tracks = tracks_file.read()
+
 
 class AccountCreationTests(TestCase):
     """
@@ -123,18 +128,15 @@ class SpotifyWrappedModelTests(TestCase):
     """
     Tests which related to the model representation of a SpotifyWrapped
     """
-    def test_json_parse(self):
+    def test_json_parse_slides(self):
         """
         Ensures we can properly parse the data from a JSON object returned from
-        Spotify into a Wrapped
+        Spotify into a Wrapped with the correct slides
         """
         test_account = Account.new(username="test_json_parse", password="password123")
-        with open("test_inputs/example_artists.json", "r", encoding="utf-8") as artists_file:
-            example_artists = artists_file.read()
-        with open("test_inputs/example_tracks.json", "r", encoding="utf-8") as tracks_file:
-            example_tracks = tracks_file.read()
-        wrapped = SingleWrapped.parse(test_account, example_artists, example_tracks)
-        self.assertEqual(wrapped.slides, [
+        wrapped_id = SingleWrapped.create(test_account, example_artists, example_tracks)
+        wrapped = SingleWrapped.objects.get(id=wrapped_id)
+        self.assertEqual(wrapped.get_slides(), [
             "Your number one artist was Artik & Asti!",
             "That makes you one of 1076226 fans!",
             "Your most played genre was russian pop!",
@@ -144,3 +146,41 @@ class SpotifyWrappedModelTests(TestCase):
             "None of your top 5 songs were explicit 😇",
             "Your playlist was a fresh change of pace for most people!"
         ])
+
+    def test_json_create_type(self):
+        """
+        Ensures we can properly parse the data from a JSON object returned from
+        Spotify into a Wrapped with the correct type
+        """
+        test_account = Account.new(username="test_json_create_type", password="password123")
+        wrapped_id = SingleWrapped.create(test_account, example_artists, example_tracks)
+        wrapped = SingleWrapped.objects.get(id=wrapped_id)
+        self.assertEqual(wrapped.get_type(), "Single Wrapped")
+
+    def test_json_create_id(self):
+        """
+        Ensures we can properly parse the data from a JSON object returned from
+        Spotify into a Wrapped with a valid id
+        """
+        test_account = Account.new(username="test_json_create_id", password="password123")
+        wrapped_id = SingleWrapped.create(test_account, example_artists, example_tracks)
+        wrapped = SingleWrapped.objects.get(id=wrapped_id)
+        #This is kind of obviously correct but more tests never hurt in case
+        #the implementation gets more complicated in the future
+        self.assertEqual(wrapped.get_id(), str(wrapped_id))
+
+    def test_json_create_datetime(self):
+        """
+        Ensures we can properly parse the data from a JSON object returned from
+        Spotify into a Wrapped with the correct datetime (Within a few minutes so
+        this test is not too precise to run consistently)
+        """
+        test_account = Account.new(username="test_json_create_datetime", password="password123")
+        wrapped_id = SingleWrapped.create(test_account, example_artists, example_tracks)
+        wrapped = SingleWrapped.objects.get(id=wrapped_id)
+        datetime = wrapped.get_created_at()
+        now = timezone.now()
+        diff = now - datetime
+        functional = diff < timedelta(minutes=3)
+        self.assertTrue(functional, "The recorded datetime of the wrapped"
+                        + " and the current time differ by more than 3 minutes")
