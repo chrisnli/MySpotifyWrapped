@@ -144,7 +144,8 @@ class SpotifyWrappedModelTests(TestCase):
             "Your number one song was Walk It Talk It!",
             "You tend to like mid-length songs.",
             "None of your top 5 songs were explicit 😇",
-            "Your playlist was a fresh change of pace for most people!"
+            "People may not have heard of the songs you like."
+            + " All the more reason to share them!",
         ])
 
     def test_json_create_type(self):

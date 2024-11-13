@@ -210,8 +210,9 @@ def _add_tracks(slides, top_tracks):
         slides.append("Oh my! " + str(total_explicit)
                               + " of your top 5 songs were explicit.")
     if avg_popularity >= 67:
-        slides.append("The songs you listened to were popular all over!")
+        slides.append("Most people would totally vibe with your playlist!")
     elif avg_popularity >= 33:
-        slides.append("Your playlist was a fresh change of pace for most people!")
+        slides.append("People may not have heard of the songs you like."
+                      + " All the more reason to share them!")
     else:
-        slides.append("The songs you listened to were very uncommon!")
+        slides.append("You'll be able to impress people with your knowledge of less popular songs!")
