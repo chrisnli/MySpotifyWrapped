@@ -185,3 +185,36 @@ class SpotifyWrappedModelTests(TestCase):
         functional = diff < timedelta(minutes=3)
         self.assertTrue(functional, "The recorded datetime of the wrapped"
                         + " and the current time differ by more than 3 minutes")
+
+    def test_json_create_artist_images(self):
+        """
+        Ensures we can properly parse the data from a JSON object returned from
+        Spotify into a Wrapped with the correct artist images
+        """
+        test_account = Account.new(username="test_json_create_artist_images",
+                                   password="password123")
+        wrapped_id = SingleWrapped.create(test_account, example_artists, example_tracks)
+        wrapped = SingleWrapped.objects.get(id=wrapped_id)
+        self.assertEqual(wrapped.get_artist_images(), [{'height': 640,
+            'url': 'https://i.scdn.co/image/ab6761610000e5ebee4cc01186e52a96de104302',
+            'width': 640}])
+
+    def test_json_create_track_images(self):
+        """
+        Ensures we can properly parse the data from a JSON object returned from
+        Spotify into a Wrapped with the correct artist images
+        """
+        test_account = Account.new(username="test_json_create_track_images", password="password123")
+        wrapped_id = SingleWrapped.create(test_account, example_artists, example_tracks)
+        wrapped = SingleWrapped.objects.get(id=wrapped_id)
+        self.assertEqual(wrapped.get_track_images(),
+    [{'height': 640, 'url': 'https://i.scdn.co/image/ab67616d0000b2739c188c494d8bfaf895411890',
+               'width': 640}, {'height': 640, 'url': 
+               'https://i.scdn.co/image/ab67616d0000b27351072e631ab218fd41542e15',
+               'width': 640}, {'height': 640, 'url':
+               'https://i.scdn.co/image/ab67616d0000b27359e80ca724e277e3b9ddc1f0',
+               'width': 640}, {'height': 640, 'url':
+               'https://i.scdn.co/image/ab67616d0000b273e8e7b03a6238bc2c52114a5e',
+               'width': 640}, {'height': 640, 'url':
+               'https://i.scdn.co/image/ab67616d0000b2739c6bd8b9107e0fc85e9cd08c',
+               'width': 640}])

@@ -82,6 +82,8 @@ class SingleWrapped(models.Model):
     id = models.TextField(primary_key=True)
     user = models.ForeignKey(Account, on_delete=models.CASCADE)
     slides = models.JSONField()
+    artist_images = models.JSONField()
+    track_images = models.JSONField()
     type = models.TextField(default='Single Wrapped')
     created_at = models.DateTimeField()
 
@@ -102,15 +104,17 @@ class SingleWrapped(models.Model):
         wrapped.created_at = timezone.now()
         wrapped.user = user
         wrapped.slides = []
+        wrapped.artist_images = []
+        wrapped.track_images = []
         artist_dict = json.loads(artist_json)
         top_artists = artist_dict["items"]
         if len(top_artists) == 0:
             wrapped.slides.append("You didn't listen to any music recently.")
             return wrapped
-        _add_artists(wrapped.slides, top_artists)
+        _add_artists(wrapped, top_artists)
         track_dict = json.loads(track_json)
         top_tracks = track_dict["items"]
-        _add_tracks(wrapped.slides, top_tracks)
+        _add_tracks(wrapped, top_tracks)
         return wrapped
 
     @classmethod
@@ -152,15 +156,39 @@ class SingleWrapped(models.Model):
         """
         return self.id
 
-def _add_artists(slides, top_artists):
-    slides.append("Your number one artist was " + str(top_artists[0]["name"]) + "!")
-    slides.append("That makes you one of " +
+    def get_artist_images(self):
+        """
+        :return: Dictionaries representing the top artists of the wrapped,
+        ordered from highest to lowest. A list element is None if no image
+        was available. The length of this list is the same as the number of
+        top artists. Each dictionary contains a link to the image as well
+        as the height and width of the linked image
+        """
+        return self.artist_images
+
+    def get_track_images(self):
+        """
+        :return: Dictionaries representing the top tracks of the wrapped,
+        ordered from highest to lowest. A list element is None if no image
+        was available. The length of this list is the same as the number of
+        top tracks. Each dictionary contains a link to the image as well
+        as the height and width of the linked image
+        """
+        return self.track_images
+
+def _add_artists(wrapped, top_artists):
+    wrapped.slides.append("Your number one artist was " + str(top_artists[0]["name"]) + "!")
+    wrapped.slides.append("That makes you one of " +
                           str(top_artists[0]["followers"]["total"]) + " fans!")
     genre_counts = {}
     total_artist_popularity = 0
     for artist in top_artists:
         total_artist_popularity += int(artist["popularity"])
         genres = artist["genres"]
+        if len(artist["images"]) > 0:
+            wrapped.artist_images.append(artist["images"][0])
+        else:
+            wrapped.artist_images.append(None)
         for genre in genres:
             if genre in genre_counts:
                 genre_counts[genre] += 1
@@ -168,51 +196,63 @@ def _add_artists(slides, top_artists):
                 genre_counts[genre] = 1
     favorite_genre = max(genre_counts, key=genre_counts.get)
     if favorite_genre is None:
-        slides.append(
+        wrapped.slides.append(
             "Your favorite artists are so niche, we don't know what genre they are!")
     else:
-        slides.append("Your most played genre was " + favorite_genre + "!")
+        wrapped.slides.append("Your most played genre was " + favorite_genre + "!")
     avg_artist_popularity = total_artist_popularity / len(top_artists)
-    if avg_artist_popularity >= 80:
-        slides.append("Everyone's on the same page about your favorite artists!")
-    elif avg_artist_popularity >= 60:
-        slides.append("Your favorite artists are interesting, but not controversial.")
-    elif avg_artist_popularity >= 40:
-        slides.append("You have a niche taste in artists!")
-    elif avg_artist_popularity >= 20:
-        slides.append("You tend to enjoy the smaller creators!")
-    else:
-        slides.append("Your taste in artists is quite unique!")
+    _conclude_artist_popularity(wrapped,avg_artist_popularity)
 
-def _add_tracks(slides, top_tracks):
-    slides.append("Your number one song was " + str(top_tracks[0]["name"]) + "!")
+def _conclude_artist_popularity(wrapped, avg_artist_popularity):
+    if avg_artist_popularity >= 80:
+        wrapped.slides.append("Everyone's on the same page about your favorite artists!")
+    elif avg_artist_popularity >= 60:
+        wrapped.slides.append("Your favorite artists are interesting, but not controversial.")
+    elif avg_artist_popularity >= 40:
+        wrapped.slides.append("You have a niche taste in artists!")
+    elif avg_artist_popularity >= 20:
+        wrapped.slides.append("You tend to enjoy the smaller creators!")
+    else:
+        wrapped.slides.append("Your taste in artists is quite unique!")
+
+def _add_tracks(wrapped, top_tracks):
+    wrapped.slides.append("Your number one song was " + str(top_tracks[0]["name"]) + "!")
     total_length = 0
     total_explicit = 0
     total_track_popularity = 0
     for track in top_tracks:
         total_track_popularity += int(track["popularity"])
         total_length += int(track["duration_ms"])
+        if len(track["album"]["images"]) > 0:
+            wrapped.track_images.append(track["album"]["images"][0])
+        else:
+            wrapped.track_images.append(None)
         if track["explicit"] == "true":
             total_explicit += 1
     avg_length = total_length / len(top_tracks)
     avg_popularity = total_track_popularity / len(top_tracks)
     if avg_length <= 60000:
-        slides.append("You tend to like shorter songs.")
+        wrapped.slides.append("You tend to like shorter songs.")
     elif avg_length <= 240000:
-        slides.append("You tend to like mid-length songs.")
+        wrapped.slides.append("You tend to like mid-length songs.")
     else:
-        slides.append("You tend to like longer songs.")
+        wrapped.slides.append("You tend to like longer songs.")
+
     if total_explicit == 0:
-        slides.append("None of your top 5 songs were explicit 😇")
+        wrapped.slides.append("None of your top 5 songs were explicit 😇")
     elif total_explicit <= 3:
-        slides.append(str(total_explicit) + " of your top 5 songs were explicit.")
+        wrapped.slides.append(str(total_explicit) + " of your top 5 songs were explicit.")
     else:
-        slides.append("Oh my! " + str(total_explicit)
+        wrapped.slides.append("Oh my! " + str(total_explicit)
                               + " of your top 5 songs were explicit.")
+    _conclude_track_popularity(wrapped,avg_popularity)
+
+def _conclude_track_popularity(wrapped, avg_popularity):
     if avg_popularity >= 67:
-        slides.append("Most people would totally vibe with your playlist!")
+        wrapped.slides.append("Most people would totally vibe with your playlist!")
     elif avg_popularity >= 33:
-        slides.append("People may not have heard of the songs you like."
+        wrapped.slides.append("People may not have heard of the songs you like."
                       + " All the more reason to share them!")
     else:
-        slides.append("You'll be able to impress people with your knowledge of less popular songs!")
+        wrapped.slides.append("You'll be able to impress people with your knowledge"
+                              + " of less popular songs!")
